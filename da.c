@@ -4,6 +4,7 @@
 #include <stdio.h>
 #include <stdlib.h>
 
+#include "elist.h"
 #include "logger.h"
 
 /* Forward declarations: */
@@ -11,17 +12,24 @@ void print_usage(char *argv[]);
 
 
 void print_usage(char *argv[]) {
-fprintf(stderr, "Disk Analyzer (da): analyzes disk space usage\n");
-fprintf(stderr, "Usage: %s [-ahs] [-l limit] [directory]\n\n", argv[0]);
+	fprintf(stderr, "Disk Analyzer (da): analyzes disk space usage\n");
+	fprintf(stderr, "Usage: %s [-ahs] [-l limit] [directory]\n\n", argv[0]);
 
-fprintf(stderr, "If no directory is specified, the current working directory is used.\n\n");
+	fprintf(stderr, "If no directory is specified, the current working directory is used.\n\n");
 
-fprintf(stderr, "Options:\n"
-"    * -a              Sort the files by time of last access (descending)\n"
-"    * -h              Display help/usage information\n"
-"    * -l limit        Limit the output to top N files (default=unlimited)\n"
-"    * -s              Sort the files by size (default, ascending)\n\n"
-);
+	fprintf(stderr, "Options:\n"
+		"    * -a              Sort the files by time of last access (descending)\n"
+		"    * -h              Display help/usage information\n"
+		"    * -l limit        Limit the output to top N files (default=unlimited)\n"
+		"    * -s              Sort the files by size (default, ascending)\n\n"
+		);
+}
+
+int comp(const void *a, const void *b) {
+	int *ap = (int *) a;
+	int *bp = (int *) b;
+	//return *ap < *bp; // descending
+	return *ap > *bp; // ascending
 }
 
 int main(int argc, char *argv[])
@@ -98,6 +106,47 @@ int main(int argc, char *argv[])
      *  - sort the list (either by size or time)
      *  - print formatted list
      */
+   
+	struct elist *list = elist_create(0, sizeof(int));
+	int a = 9;
+	elist_add(list, &a);
+	
+	a = 6;
+	elist_add(list, &a);
+	
+	for (int i=0; i < 1000; ++i) {
+		elist_add(list, &i);
+	}
 
+	// int my_nums[100];
+	// for (int i = 0; i < 100; ++i) {
+		// my_nums[i] = random() % 1000;
+	// }
+// 
+	// for (int i = 0; i < 100; ++i) {
+			// printf("-> %d\n", my_nums[i]);
+		// }
+		// 
+	// qsort(my_nums, 100, sizeof(int), comp);
+// 
+	// for (int i = 0; i < 100; ++i) {
+		// printf("-> %d\n", my_nums[i]);
+	// }
+	
+	int b = 999;
+	elist_add(list, &b);
+
+	elist_add(list, &options); // casting options to integer and you don't know what you'll get back
+
+	int *x = elist_get(list, 1);
+	printf("we got an integer back! %d\n", *x);
+
+	int *y = elist_get(list, 0); // 9 because we copied it
+	printf("we got an integer back! %d\n", *y);
+
+	int *z = elist_get(list, 3);
+	printf("we got an integer back! %d\n", *z); // this depends on the data on what &options has
+		
+	elist_destroy(list);
     return 0;
 }
