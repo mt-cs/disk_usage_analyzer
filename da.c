@@ -114,24 +114,25 @@ int main(int argc, char *argv[])
 	a = 6;
 	elist_add(list, &a);
 	
-	for (int i=0; i < 1000; ++i) {
+	for (int i = 0; i < 1000; ++i) {
 		elist_add(list, &i);
 	}
 
-	// int my_nums[100];
-	// for (int i = 0; i < 100; ++i) {
-		// my_nums[i] = random() % 1000;
-	// }
-// 
-	// for (int i = 0; i < 100; ++i) {
-			// printf("-> %d\n", my_nums[i]);
-		// }
-		// 
-	// qsort(my_nums, 100, sizeof(int), comp);
-// 
-	// for (int i = 0; i < 100; ++i) {
-		// printf("-> %d\n", my_nums[i]);
-	// }
+	int my_nums[100];
+	for (int i = 0; i < 100; ++i) {
+		my_nums[i] = random() % 1000;
+	}
+
+	for (int i = 0; i < 100; ++i) {
+			printf("-> %d\n", my_nums[i]);
+		}
+		
+	qsort(my_nums, 100, sizeof(int), comp);
+
+	printf("AFTER SORTING:\n");
+	for (int i = 0; i < 100; ++i) {
+		printf("-> %d\n", my_nums[i]);
+	}
 	
 	int b = 999;
 	elist_add(list, &b);
