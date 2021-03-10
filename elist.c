@@ -91,18 +91,16 @@ void elist_destroy(struct elist *list)
 int elist_set_capacity(struct elist *list, size_t capacity)
 {
 	// check current capacity
-	
 	// if curr is smaller than input capacity then resize
 	// else decrease cqpacity and freed the nonused elements
-	if (list->capacity < capacity) {
-		list->capacity = capacity;
-	} else {
-		if (list->size >= list->capacity) {
-			list->capacity = list->capacity * RESIZE_MULTIPLIER;
+	if (list->size > capacity) {
+		list->size = capacity;
 	}
-	
-	
-
+	list->capacity = capacity;
+	list->element_storage = realloc(list->element_storage, capacity * sizeof(size_t));
+	if (list->element_storage == NULL) {
+		return -1;
+	}	
     return 0;
 }
 
@@ -132,17 +130,20 @@ ssize_t elist_add(struct elist *list, void *item)
 	//  TODO: move to set capacity and call it here
 	/*Check if we need to resize*/
 	if (list->size >= list->capacity) {
-		list->capacity = list->capacity * RESIZE_MULTIPLIER;
-		LOG("Resizing the list. New capacity: %zu\n", list->capacity);
-
-		/* We need to set list->element_storage = realloc() in case realloc
-		 * changes the memory address of our element storage */
-		list->element_storage = realloc(
-			list->element_storage, list->capacity * list->item_sz);
-		if (list->element_storage == NULL) {
-			return -1;
-		}
+		// list->capacity = list->capacity * RESIZE_MULTIPLIER;
+		// LOG("Resizing the list. New capacity: %zu\n", list->capacity);
+// 
+		// /* We need to set list->element_storage = realloc() in case realloc
+		 // * changes the memory address of our element storage */
+		// list->element_storage = realloc(
+			// list->element_storage, list->capacity * list->item_sz);
+		// if (list->element_storage == NULL) {
+			// return -1;
+		// }
+		size_t capacity = list->capacity * RESIZE_MULTIPLIER;
+		elist_set_capacity(list, capacity);
 	}
+	
 	size_t idx = list->size++;
 	//size_t pos = (idx - 1) * list->item_sz;
 	//void *item_ptr = list->element_storage + pos; // pointer to the start of the storage
@@ -185,9 +186,8 @@ void *elist_add_new(struct elist *list)
  */
 int elist_set(struct elist *list, size_t idx, void *item)
 {
-	int *temp = (int *) item;
 	assert(idx < list->size);
-	list->element_storage[idx] = temp; //list[idx] = item
+	//list->element_storage[idx] = item; //list[idx] = item
     return 0;
 }
 
@@ -214,6 +214,7 @@ size_t elist_size(struct elist *list)
 
 int elist_remove(struct elist *list, size_t idx)
 {
+	//if (idx == list)
     return -1;
 }
 
@@ -287,6 +288,9 @@ void elist_sort(struct elist *list, int (*comparator)(const void *, const void *
 */
 bool idx_is_valid(struct elist *list, size_t idx)
 {
-    return false;
+	if (idx > list->size) {
+		return false;
+	}
+	return true;
 }
 
