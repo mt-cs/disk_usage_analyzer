@@ -3,6 +3,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/types.h>
+#include <assert.h>
 
 #include "elist.h"
 #include "logger.h"
@@ -39,7 +40,7 @@ struct elist *elist_create(size_t list_sz, size_t item_sz)
 		return NULL;
 	}
 
-	/* if lisr_sz is 0, then we'll just use the default */
+	/* if list_sz is 0, then we'll just use the default */
 	if (list_sz == 0) {
 		list_sz = DEFAULT_INIT_SZ;
 	}
@@ -77,16 +78,55 @@ void elist_destroy(struct elist *list)
 	free(list);
 }
 
+
+/**
+ * Increases or decreases the storage capacity of a list. When decreasing the
+ * capacity, any elements beyond the new capacity are freed.
+ *
+ * @param list The list to change the capacity of
+ * @param capacity The list's new capacity
+ *
+ * @return zero on success, nonzero on failure
+ */
 int elist_set_capacity(struct elist *list, size_t capacity)
 {
-    return -1;
-}
+	// check current capacity
+	
+	// if curr is smaller than input capacity then resize
+	// else decrease cqpacity and freed the nonused elements
+	if (list->capacity < capacity) {
+		list->capacity = capacity;
+	} else {
+		if (list->size >= list->capacity) {
+			list->capacity = list->capacity * RESIZE_MULTIPLIER;
+	}
+	
+	
 
-size_t elist_capacity(struct elist *list)
-{
     return 0;
 }
 
+/**
+ * Retrieves the current capacity of the list.
+ *
+ * @param list The list to retrieve the capacity of
+ *
+ * @return capacity of  the list
+ */
+size_t elist_capacity(struct elist *list)
+{
+	return list->capacity;
+}
+
+/**
+ * Adds a new element to the list by copying its in-memory contents into the
+ * list's element storage.
+ *
+ * @param list The list to copy the element into
+ * @param element The element to copy
+ *
+ * @return Index of the element, or -1 on failure
+ */
 ssize_t elist_add(struct elist *list, void *item)
 {
 	//  TODO: move to set capacity and call it here
@@ -119,14 +159,36 @@ ssize_t elist_add(struct elist *list, void *item)
     return idx;
 }
 
+/**
+ * Creates storage space for a new list element and returns a pointer to it.
+ * Unlike elist_add, copying memory is not required so this function may be more
+ * efficient when performance is critical.
+ *
+ * @param list The list to add a new element to
+ *
+ * @return Pointer to the new element (NOTE: it will not be initialized) or NULL
+ * on failure.
+ */
 void *elist_add_new(struct elist *list)
-{
+{	
     return NULL;
 }
 
+/**
+ * Replaces an element at a particular index.
+ *
+ * @param list The list to modify
+ * @param idx Index of the element to replace
+ * @param element Element to place at 'idx' in the list
+ *
+ * @return zero on success, nonzero on failure
+ */
 int elist_set(struct elist *list, size_t idx, void *item)
 {
-    return -1;
+	int *temp = (int *) item;
+	assert(idx < list->size);
+	list->element_storage[idx] = temp; //list[idx] = item
+    return 0;
 }
 
 /**
@@ -147,7 +209,7 @@ void *elist_get(struct elist *list, size_t idx)
 
 size_t elist_size(struct elist *list)
 {
-    return 0;
+    return list->size;
 }
 
 int elist_remove(struct elist *list, size_t idx)
@@ -155,26 +217,74 @@ int elist_remove(struct elist *list, size_t idx)
     return -1;
 }
 
+/**
+ * Empties a list (but does not change its capacity).
+ *
+ * @param list The list to clear
+ */
 void elist_clear(struct elist *list)
 {
-
+	list->size = 0;
 }
 
+/**
+ * Empties a list (but does not change its capacity) and zeroes out all its
+ * elements.
+ * 
+ * @param list The list to clear
+ */
 void elist_clear_mem(struct elist *list)
 {
-
+	elist_clear(list);
+	memset(list, 0, list->size);
 }
 
+/**
+ * Retrieves the index of the first occurrence of a given element in the list.
+ * This function uses memcmp() to determine element equality, so the supplied
+ * element must be an exact copy (in terms of memory representation).
+ *
+ * @param list The list to search for the element
+ * @param element An exact memory copy of the element to retrieve the index of
+ *
+ * @return The index, or -1 if the element was not found
+ */
 ssize_t elist_index_of(struct elist *list, void *item)
 {
+	// int count = 0;
+// 
+	// while(count < list->size) {
+		// void *temp = list->element_storage + count *list->item_sz;
+	// 
+	// }
     return -1;
 }
 
+/**
+ * Sorts an elist using the provided comparator function pointer.
+ *
+ * The comparator signature follows the same form as the comparators of
+ * qsort(3):
+ *
+ * int (*compar)(const void *, const void *)
+ *
+ * The comparison function must return an integer less than, equal to, or
+ * greater  than zero  if the first argument is considered to be respectively
+ * less than, equal to, or greater than the second.  If two members compare as
+ * equal, their order in the sorted array is undefined.
+ *
+ * @param list The list to sort
+ * @param comparator Comparison function to use for the sort
+ */
 void elist_sort(struct elist *list, int (*comparator)(const void *, const void *))
 {
-
+	return;
 }
 
+/*
+* checks if index is valid.
+* blah blah
+*/
 bool idx_is_valid(struct elist *list, size_t idx)
 {
     return false;
