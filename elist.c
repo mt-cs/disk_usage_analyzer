@@ -320,7 +320,7 @@ ssize_t elist_index_of(struct elist *list, void *item)
  */
 void elist_sort(struct elist *list, int (*comparator)(const void *, const void *))
 {
-	
+	qsort (list->element_storage, list->size, list->item_sz, comparator);
 	return;
 }
 
