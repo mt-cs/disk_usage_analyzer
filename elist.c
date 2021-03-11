@@ -3,7 +3,6 @@
 #include <stdlib.h>
 #include <string.h>
 #include <sys/types.h>
-#include <assert.h>
 
 #include "elist.h"
 #include "logger.h"
@@ -262,12 +261,6 @@ void elist_clear_mem(struct elist *list)
 {
 	elist_clear(list);
 	memset(list->element_storage, 0, list->capacity * list->item_sz);
-	// for (int i = 0; i < list->capacity; i++) {
-		// int zero = 0;
-		// elist_set(list, i, zero);
-	// }
-	// list->size = 0;
-	
 }
 
 /**
@@ -313,18 +306,5 @@ void elist_sort(struct elist *list, int (*comparator)(const void *, const void *
 {
 	qsort (list->element_storage, list->size, list->item_sz, comparator);
 	return;
-}
-
-/*
-* checks if index is valid.
-* @param list The list to sort
-* @param idx Index of the element to remove
-*/
-bool idx_is_valid(struct elist *list, size_t idx)
-{
-	if (idx > list->size) {
-		return false;
-	}
-	return true;
 }
 
