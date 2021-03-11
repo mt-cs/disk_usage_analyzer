@@ -90,14 +90,11 @@ void elist_destroy(struct elist *list)
  */
 int elist_set_capacity(struct elist *list, size_t capacity)
 {
-	// check current capacity
-	// if curr is smaller than input capacity then resize
-	// else decrease cqpacity and freed the nonused elements
 	if (list->size > capacity) {
 		list->size = capacity;
 	}
 	list->capacity = capacity;
-	list->element_storage = realloc(list->element_storage, capacity * sizeof(size_t));
+	list->element_storage = realloc(list->element_storage, capacity * list->item_sz);
 	if (list->element_storage == NULL) {
 		return -1;
 	}	
@@ -127,7 +124,6 @@ size_t elist_capacity(struct elist *list)
  */
 ssize_t elist_add(struct elist *list, void *item)
 {
-	//  TODO: move to set capacity and call it here
 	/*Check if we need to resize*/
 	if (list->size >= list->capacity) {
 		// list->capacity = list->capacity * RESIZE_MULTIPLIER;
@@ -156,7 +152,6 @@ ssize_t elist_add(struct elist *list, void *item)
 	// list[1] = 4
 	// list[2] = 8
 	// list[3] = 12
-	
     return idx;
 }
 
@@ -172,7 +167,17 @@ ssize_t elist_add(struct elist *list, void *item)
  */
 void *elist_add_new(struct elist *list)
 {	
-    return NULL;
+	/*Check if we need to resize*/
+	size_t list_sz = elist_size(list);
+	if (list_sz >= list->capacity) {
+		size_t capacity = list->capacity * RESIZE_MULTIPLIER;
+		elist_set_capacity(list, capacity);
+	}
+	
+	size_t idx = list->size++;
+	size_t pos = idx * list->item_sz;
+	void *item_ptr = list->element_storage + pos; // pointer to the start of the storage
+    return item_ptr;
 }
 
 /**
@@ -187,7 +192,7 @@ void *elist_add_new(struct elist *list)
 int elist_set(struct elist *list, size_t idx, void *item)
 {
 	assert(idx < list->size);
-	//list->element_storage[idx] = item; //list[idx] = item
+	memcpy(list->element_storage + idx * list->item_sz, item, list->item_sz);
     return 0;
 }
 
@@ -207,15 +212,42 @@ void *elist_get(struct elist *list, size_t idx)
     return list->element_storage + idx * list->item_sz;
 }
 
+/**
+ * Retrieves the size of the elist (the actual number of elements stored).
+ *
+ * @param list The list to retrieve the size of
+ *
+ * @return The list size
+ */
 size_t elist_size(struct elist *list)
 {
     return list->size;
 }
 
+/**
+ * Removes the element at the given index and shifts any subsequent element to
+ * the left (or in other words, subtracts one from their indices).
+ *
+ * @param list The list to modify
+ * @param idx Index of the element to remove
+ *
+ * @return zero on success, nonzero on failure
+ */
 int elist_remove(struct elist *list, size_t idx)
 {
-	//if (idx == list)
-    return -1;
+	if (idx >= list->size) {
+		fprintf(stderr, "Out of index!");
+		return -1;
+	}
+	
+	for(size_t j = idx + 1; j < list->size; j++) {
+		void* item = elist_get(list, j);
+		//ist->element_storage[j-1] = list->element_storage[j];
+		elist_set(list, j - 1, item);
+	}
+	list->size--;
+	
+    return 0;
 }
 
 /**
@@ -236,8 +268,15 @@ void elist_clear(struct elist *list)
  */
 void elist_clear_mem(struct elist *list)
 {
-	elist_clear(list);
+	size_t temp = list->capacity;
 	memset(list, 0, list->size);
+	list->capacity = temp;
+	// for (int i = 0; i < list->capacity; i++) {
+		// int zero = 0;
+		// elist_set(list, i, zero);
+	// }
+	// list->size = 0;
+	
 }
 
 /**
@@ -246,18 +285,20 @@ void elist_clear_mem(struct elist *list)
  * element must be an exact copy (in terms of memory representation).
  *
  * @param list The list to search for the element
- * @param element An exact memory copy of the element to retrieve the index of
+ * @param item An exact memory copy of the element to retrieve the index of
  *
  * @return The index, or -1 if the element was not found
  */
 ssize_t elist_index_of(struct elist *list, void *item)
 {
-	// int count = 0;
-// 
-	// while(count < list->size) {
-		// void *temp = list->element_storage + count *list->item_sz;
-	// 
-	// }
+	size_t index = 0;
+	while(index < list->size) {
+		void *temp = list->element_storage + index*list->item_sz;
+		if (memcmp(item, temp, list->item_sz)==0) {
+			return index;
+		}
+		index++;
+	}
     return -1;
 }
 
@@ -279,6 +320,7 @@ ssize_t elist_index_of(struct elist *list, void *item)
  */
 void elist_sort(struct elist *list, int (*comparator)(const void *, const void *))
 {
+	
 	return;
 }
 
