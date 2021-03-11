@@ -28,7 +28,7 @@ bool idx_is_valid(struct elist *list, size_t idx); // private function in c
  * default capacity will be used. 
  *
  * @param init_capacity The initial capacity of the list
- * @param element_sz Size of the elements that will be stored in the list (in bytes)
+ * @param item_sz Size of the elements that will be stored in the list (in bytes)
  *
  * @return A pointer to the newly-created list, or NULL on failure.
  */
@@ -90,14 +90,22 @@ void elist_destroy(struct elist *list)
  */
 int elist_set_capacity(struct elist *list, size_t capacity)
 {
+	if (capacity == 0) {
+		capacity = 1;
+		elist_clear(list);
+	}
+
+	list->element_storage = realloc(list->element_storage, capacity * list->item_sz);
+	if (list->element_storage == NULL) {
+		perror("realloc");
+		free(list);
+		return -1;
+	}	
+	
+	list->capacity = capacity;
 	if (list->size > capacity) {
 		list->size = capacity;
 	}
-	list->capacity = capacity;
-	list->element_storage = realloc(list->element_storage, capacity * list->item_sz);
-	if (list->element_storage == NULL) {
-		return -1;
-	}	
     return 0;
 }
 
@@ -118,7 +126,7 @@ size_t elist_capacity(struct elist *list)
  * list's element storage.
  *
  * @param list The list to copy the element into
- * @param element The element to copy
+ * @param item The element to copy
  *
  * @return Index of the element, or -1 on failure
  */
@@ -126,32 +134,15 @@ ssize_t elist_add(struct elist *list, void *item)
 {
 	/*Check if we need to resize*/
 	if (list->size >= list->capacity) {
-		// list->capacity = list->capacity * RESIZE_MULTIPLIER;
-		// LOG("Resizing the list. New capacity: %zu\n", list->capacity);
-// 
-		// /* We need to set list->element_storage = realloc() in case realloc
-		 // * changes the memory address of our element storage */
-		// list->element_storage = realloc(
-			// list->element_storage, list->capacity * list->item_sz);
-		// if (list->element_storage == NULL) {
-			// return -1;
-		// }
 		size_t capacity = list->capacity * RESIZE_MULTIPLIER;
+		LOG("Resizing the list. New capacity: %zu\n", list->capacity);
 		elist_set_capacity(list, capacity);
 	}
 	
 	size_t idx = list->size++;
-	//size_t pos = (idx - 1) * list->item_sz;
-	//void *item_ptr = list->element_storage + pos; // pointer to the start of the storage
-
 	void *item_ptr = list->element_storage + idx * list->item_sz;
 	memcpy(item_ptr, item, list->item_sz);
 	
-	// Memory layout (assuming int)
-	// list[0] = 0
-	// list[1] = 4
-	// list[2] = 8
-	// list[3] = 12
     return idx;
 }
 
@@ -185,13 +176,15 @@ void *elist_add_new(struct elist *list)
  *
  * @param list The list to modify
  * @param idx Index of the element to replace
- * @param element Element to place at 'idx' in the list
+ * @param item Element to place at 'idx' in the list
  *
  * @return zero on success, nonzero on failure
  */
 int elist_set(struct elist *list, size_t idx, void *item)
 {
-	assert(idx < list->size);
+	if(idx >= list->size){
+		return -1;
+	}
 	memcpy(list->element_storage + idx * list->item_sz, item, list->item_sz);
     return 0;
 }
@@ -241,8 +234,7 @@ int elist_remove(struct elist *list, size_t idx)
 	}
 	
 	for(size_t j = idx + 1; j < list->size; j++) {
-		void* item = elist_get(list, j);
-		//ist->element_storage[j-1] = list->element_storage[j];
+		void* item = elist_get(list, j);;
 		elist_set(list, j - 1, item);
 	}
 	list->size--;
@@ -268,9 +260,8 @@ void elist_clear(struct elist *list)
  */
 void elist_clear_mem(struct elist *list)
 {
-	size_t temp = list->capacity;
-	memset(list, 0, list->size);
-	list->capacity = temp;
+	elist_clear(list);
+	memset(list->element_storage, 0, list->capacity * list->item_sz);
 	// for (int i = 0; i < list->capacity; i++) {
 		// int zero = 0;
 		// elist_set(list, i, zero);
@@ -326,7 +317,8 @@ void elist_sort(struct elist *list, int (*comparator)(const void *, const void *
 
 /*
 * checks if index is valid.
-* blah blah
+* @param list The list to sort
+* @param idx Index of the element to remove
 */
 bool idx_is_valid(struct elist *list, size_t idx)
 {

@@ -98,7 +98,7 @@ int main(int argc, char *argv[])
             options.sort_by_time == true ? "time" : "size",
             options.limit);
     LOG("Directory to analyze: [%s]\n", options.directory);
-
+}
     /* TODO:
      *  - check to ensure the directory actually exists
      *  - create a new 'elist' data structure
@@ -107,47 +107,80 @@ int main(int argc, char *argv[])
      *  - print formatted list
      */
    
-	struct elist *list = elist_create(0, sizeof(int));
-	int a = 9;
-	elist_add(list, &a);
-	
-	a = 6;
-	elist_add(list, &a);
-	
-	for (int i = 0; i < 1000; ++i) {
-		elist_add(list, &i);
-	}
+	// struct elist *list = elist_create(0, sizeof(int));
+	// int a = 9;
+	// elist_add(list, &a);
+	// 
+	// a = 6;
+	// elist_add(list, &a);
+	// 
+	// for (int i = 0; i < 1000; ++i) {
+		// elist_add(list, &i);
+	// }
+// 
+	// int my_nums[100];
+	// for (int i = 0; i < 100; ++i) {
+		// my_nums[i] = random() % 1000;
+	// }
+// 
+	// for (int i = 0; i < 100; ++i) {
+			// printf("-> %d\n", my_nums[i]);
+		// }
+		// 
+	// qsort(my_nums, 100, sizeof(int), comp);
+// 
+	// printf("AFTER SORTING:\n");
+	// for (int i = 0; i < 100; ++i) {
+		// printf("-> %d\n", my_nums[i]);
+	// }
+	// 
+	// int b = 999;
+	// elist_add(list, &b);
+// 
+	// elist_add(list, &options); // casting options to integer and you don't know what you'll get back
+// 
+	// int *x = elist_get(list, 1);
+	// printf("we got an integer back! %d\n", *x);
+// 
+	// int *y = elist_get(list, 0); // 9 because we copied it
+	// printf("we got an integer back! %d\n", *y);
+// 
+	// int *z = elist_get(list, 3);
+	// printf("we got an integer back! %d\n", *z); // this depends on the data on what &options has
+		// 
+	// elist_destroy(list);
+    // return 0;
 
-	int my_nums[100];
-	for (int i = 0; i < 100; ++i) {
-		my_nums[i] = random() % 1000;
-	}
 
-	for (int i = 0; i < 100; ++i) {
-			printf("-> %d\n", my_nums[i]);
-		}
-		
-	qsort(my_nums, 100, sizeof(int), comp);
 
-	printf("AFTER SORTING:\n");
-	for (int i = 0; i < 100; ++i) {
-		printf("-> %d\n", my_nums[i]);
-	}
-	
-	int b = 999;
-	elist_add(list, &b);
-
-	elist_add(list, &options); // casting options to integer and you don't know what you'll get back
-
-	int *x = elist_get(list, 1);
-	printf("we got an integer back! %d\n", *x);
-
-	int *y = elist_get(list, 0); // 9 because we copied it
-	printf("we got an integer back! %d\n", *y);
-
-	int *z = elist_get(list, 3);
-	printf("we got an integer back! %d\n", *z); // this depends on the data on what &options has
-		
-	elist_destroy(list);
-    return 0;
-}
+    // create a helper function that takes in current path, elist -- create new string for path
+    // then try to find all the files under the path
+    // when get file
+    // create string and append the path
+    // create struct and append the struct
+    // add struct in elist
+    // recursive case: when find directory, call it again on it
+    // pass the elist
+ // int traverseDir(char* in_path) {
+ 	// struct dirent *entry;
+    // struct stat filestat;
+    // DIR* directory;
+    // char path[100];
+// 
+    // printf("--> %s\n", options.directory);
+    // if ((directory = opendir(options.directory) == NULL)) {
+    	// perror("opendir");
+    	// return -1;
+    // }
+    // printf(" ==> %s\n", directory);
+    // while ((entry == readdir(directory)) != NULL) {
+    	// if (stat(entry->d_name, &filestat) == -1) {
+    		// continue;
+    	// }
+// 
+    	// printf(" ==> %s, ", entry->d_name);
+    	// 
+    // }
+ // }
+    // 
+// }
