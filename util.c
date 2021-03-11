@@ -14,16 +14,13 @@
 void human_readable_size(char *buf, size_t buf_sz, double size, unsigned int decimals)
 {
 	char *suffix[] = {"B", "KiB", "MiB", "GiB", "TiB", "PiB", "ZiB"};
-	char length = sizeof(suffix) / sizeof(suffix[0]);
-
 	int i = 0;
-	
-	if (size > 1024) {
-		for (i = 0; (size / 1024) > 0 && i<length-1; i++, size /= 1024)
-			decimals = size / 1024;
+	while (size > 1024) {
+		size /= 1024;
+		i++;
 	}
+	decimals = size;
 	sprintf(buf, "%i %s", decimals, suffix[i]);
-	return;
 }
 
 /**
