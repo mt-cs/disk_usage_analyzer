@@ -29,5 +29,11 @@ void human_readable_size(char *buf, size_t buf_sz, double size, unsigned int dec
  */
 size_t simple_time_format(char *buf, size_t buf_sz, time_t time)
 {
-    return 0;
+	struct tm *now = localtime(&time);
+	strftime(buf, buf_sz, "%B %d %Y", now);
+	size_t bytes = sizeof(buf);
+	if (buf_sz < bytes) {
+		return 0;
+	}
+	return bytes;
 }
