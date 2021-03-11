@@ -3,9 +3,17 @@
 #include <stdbool.h>
 #include <stdio.h>
 #include <stdlib.h>
+#include <dirent.h>
+#include <sys/stat.h>
+#include <string.h>
 
 #include "elist.h"
 #include "logger.h"
+#include "util.c"
+
+#define GREEN "\x1b[32m"
+#define BLUE "\x1b[34m"
+#define WHITE "\x1b[37m"
 
 /* Forward declarations: */
 void print_usage(char *argv[]);
@@ -31,6 +39,50 @@ int comp(const void *a, const void *b) {
 	//return *ap < *bp; // descending
 	return *ap > *bp; // ascending
 }
+
+
+ // create a helper function that takes in current path, elist -- create new string for path
+    // 	- then try to find all the files under the path
+    // 	- when get file
+    //	 	- - create string and append the path
+    //	 	- - create struct and append the struct
+    //	 	add struct in elist
+    // recursive case: when find directory, call it again on it
+    // pass the elist
+    
+
+
+void traverse_dir(char *name){
+    DIR* dir;
+    struct dirent *ent;
+    struct stat states;
+
+    dir = opendir(name);
+    
+    if(!dir) {
+        return;
+    }
+
+    while((ent=readdir(dir)) != NULL){
+        stat(ent->d_name,&states);
+        if(!strcmp(".", ent->d_name) || !strcmp("..", ent->d_name)){
+            continue;
+        }
+        else{
+            printf(GREEN "%s/%s\n" WHITE, name, ent->d_name);
+            if(S_ISDIR(states.st_mode)){
+                size_t file_path_len = strlen(name) + strlen(ent->d_name) + 2;
+                char *file_path = malloc(file_path_len);
+                snprintf(file_path, file_path_len, "%s/%s", name, ent->d_name);
+                traverse_dir(file_path);
+                free(file_path);
+            }
+        }
+    }
+    closedir(dir);
+}
+
+
 
 int main(int argc, char *argv[])
 {
@@ -98,7 +150,7 @@ int main(int argc, char *argv[])
             options.sort_by_time == true ? "time" : "size",
             options.limit);
     LOG("Directory to analyze: [%s]\n", options.directory);
-}
+
     /* TODO:
      *  - check to ensure the directory actually exists
      *  - create a new 'elist' data structure
@@ -106,6 +158,15 @@ int main(int argc, char *argv[])
      *  - sort the list (either by size or time)
      *  - print formatted list
      */
+
+	 if (opendir(options.directory) == NULL) {
+	 	perror("Directory doesn't exist");
+	 	return -1;
+	 }
+     struct elist *list = elist_create(0, sizeof(int));
+     traverseDirectory(options.directory);
+     
+     
    
 	// struct elist *list = elist_create(0, sizeof(int));
 	// int a = 9;
@@ -148,39 +209,9 @@ int main(int argc, char *argv[])
 	// int *z = elist_get(list, 3);
 	// printf("we got an integer back! %d\n", *z); // this depends on the data on what &options has
 		// 
-	// elist_destroy(list);
-    // return 0;
+	//elist_destroy(list);
+    return 0;
+}
 
 
-
-    // create a helper function that takes in current path, elist -- create new string for path
-    // then try to find all the files under the path
-    // when get file
-    // create string and append the path
-    // create struct and append the struct
-    // add struct in elist
-    // recursive case: when find directory, call it again on it
-    // pass the elist
- // int traverseDir(char* in_path) {
- 	// struct dirent *entry;
-    // struct stat filestat;
-    // DIR* directory;
-    // char path[100];
-// 
-    // printf("--> %s\n", options.directory);
-    // if ((directory = opendir(options.directory) == NULL)) {
-    	// perror("opendir");
-    	// return -1;
-    // }
-    // printf(" ==> %s\n", directory);
-    // while ((entry == readdir(directory)) != NULL) {
-    	// if (stat(entry->d_name, &filestat) == -1) {
-    		// continue;
-    	// }
-// 
-    	// printf(" ==> %s, ", entry->d_name);
-    	// 
-    // }
- // }
-    // 
-// }
+   
