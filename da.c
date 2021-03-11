@@ -9,7 +9,7 @@
 
 #include "elist.h"
 #include "logger.h"
-#include "util.c"
+#include "util.h"
 
 #define GREEN "\x1b[32m"
 #define BLUE "\x1b[34m"
@@ -17,7 +17,16 @@
 
 /* Forward declarations: */
 void print_usage(char *argv[]);
+int comp(const void *a, const void *b);
+void traverse_dir(char *name, struct elist *list);
 
+/* Create struct for entries */
+struct Entries
+{
+	unsigned int *bytes;
+    unsigned int *time;
+    char *path;
+};
 
 void print_usage(char *argv[]) {
 	fprintf(stderr, "Disk Analyzer (da): analyzes disk space usage\n");
@@ -50,9 +59,7 @@ int comp(const void *a, const void *b) {
     // recursive case: when find directory, call it again on it
     // pass the elist
     
-
-
-void traverse_dir(char *name){
+void traverse_dir(char *name, struct elist *list){
     DIR* dir;
     struct dirent *ent;
     struct stat states;
@@ -65,16 +72,29 @@ void traverse_dir(char *name){
 
     while((ent=readdir(dir)) != NULL){
         stat(ent->d_name,&states);
+        //printf("%d\n",(double)states.st_size);
+        
         if(!strcmp(".", ent->d_name) || !strcmp("..", ent->d_name)){
             continue;
         }
         else{
+        	//char *buf_size = human_readable_size(*buf_size, 100, name.size);
+			double size = (double)states.st_size;
+			char *buf_size;
+			size_t sz = 80;
+        	struct Entries *entry;
+        	unsigned int decimals;
+        	human_readable_size(buf_size, sz, size, decimals);
+			entry->bytes = buf_size;
+			
+        
             printf(GREEN "%s/%s\n" WHITE, name, ent->d_name);
             if(S_ISDIR(states.st_mode)){
                 size_t file_path_len = strlen(name) + strlen(ent->d_name) + 2;
                 char *file_path = malloc(file_path_len);
                 snprintf(file_path, file_path_len, "%s/%s", name, ent->d_name);
-                traverse_dir(file_path);
+                elist_add(list, file_path);
+                traverse_dir(file_path, list);
                 free(file_path);
             }
         }
@@ -164,7 +184,9 @@ int main(int argc, char *argv[])
 	 	return -1;
 	 }
      struct elist *list = elist_create(0, sizeof(int));
-     traverseDirectory(options.directory);
+     traverse_dir(options.directory, list);
+     
+     	
      
      
    
