@@ -70,7 +70,7 @@ int comparator_time(const void *a, const void *b)
 /*
 * Traverse the directory recursively and
 * storing path, size, and time to the struct entry
-* @param name path name
+* @param name directory
 * @param listt elist elastic array
 */   
 void traverse_dir(char *name, struct elist *list){
@@ -104,7 +104,6 @@ void traverse_dir(char *name, struct elist *list){
             if (stat(file_path,&states) == -1) {
                 perror("stat");
             }
-
             entry.bytes = states.st_size;
             entry.time = states.st_atim.tv_sec;
             entry.path =  file_path;
@@ -205,11 +204,18 @@ int main(int argc, char *argv[])
      } else {
      	elist_sort(list, comparator_bytes);
      }
-
+     
+     unsigned int decimals = 1;
+     char size_buf[14];
+     char time_buf[15];
+     for (size_t i = 0; i < elist_size(list); i++) {
+     	struct Entries *e = elist_get(list, i);
+     	human_readable_size(size_buf, 14, (double)e->bytes, decimals);
+     	
+     }
      // iterate through and print out each item
-     // char size_buf[15];
-     // char time_buf[15];
-     //
+     
+     
         // double size = (double)states.st_size;
             // char *buf_bytes;
             // size_t sz = 80;
