@@ -25,7 +25,7 @@ struct Entries
 	off_t bytes;
     time_t time;
     char *path;
-} entry;
+};
 
 void print_usage(char *argv[]) {
 	fprintf(stderr, "Disk Analyzer (da): analyzes disk space usage\n");
@@ -67,56 +67,43 @@ int comparator_time(const void *a, const void *b)
 void traverse_dir(char *name, struct elist *list){
     DIR* dir;
     struct dirent *ent;
-    struct stat states;
 
     dir = opendir(name);
 
     if(!dir) {
+        perror("opendir");
         return;
     }
 
-	// if (stat("etc/passwd", &states) == -1) {
-		// perror("stat");
-	// }
-
     while((ent=readdir(dir)) != NULL){
-        stat(ent->d_name,&states);
-        //printf("%d\n",(double)states.st_size);
 
         if(!strcmp(".", ent->d_name) || !strcmp("..", ent->d_name)){
             continue;
         }
-        else{
-        	//struct Entries *entry = elist_add_new(list);
-            //struct Entries *entry = (struct Entries*)malloc(sizeof(struct Entries));
-            entry.bytes = states.st_size;
-           	
-            entry.time = states.st_atim.tv_sec;
 
-            // double size = (double)states.st_size;
-            // char *buf_bytes;
-            // size_t sz = 80;
-// 
-            // unsigned int decimals = 1;
-            // human_readable_size(&buf_bytes, sz, size, decimals);
-		// 
-            // char buf_time[80];
-            // simple_time_format(buf_time, 80, entry.time);
+        size_t file_path_len = strlen(name) + strlen(ent->d_name) + 2;
+        char *file_path = malloc(file_path_len);
+        snprintf(file_path, file_path_len, "%s/%s", name, ent->d_name);
 
-            //printf(GREEN "%-10s/%-8s 	%-8s 	 %s\n" WHITE, name, ent->d_name, buf_bytes, buf_time);
-            if(S_ISDIR(states.st_mode)){
-                size_t file_path_len = strlen(name) + strlen(ent->d_name) + 2;
-                char *file_path = malloc(file_path_len);
-                snprintf(file_path, file_path_len, "%s/%s", name, ent->d_name);
-                // printf("%51s 	%14s 	%15s\n", file_path, buf_bytes, buf_time);
-                entry.path =  file_path;
-                traverse_dir(file_path, list);
-                free(file_path);
+        if (ent->d_type == DT_DIR) {
+            // is a directory; traverse
+            traverse_dir(file_path, list);
+        } else {
+            // is a file, get its stats
+            struct Entries entry;
+            struct stat states;
+            if (stat(file_path,&states) == -1) {
+                perror("stat");
             }
+
+            entry.bytes = states.st_size;
+            entry.time = states.st_atim.tv_sec;
+            entry.path =  file_path;
+            LOG("adding: %s\n", file_path);
             elist_add(list, &entry);
-           
-            //free(buf_bytes);
         }
+
+        free(file_path);
     }
     closedir(dir);
 }
@@ -197,22 +184,33 @@ int main(int argc, char *argv[])
      */
 
 	 //printf("%s", options.directory);
-	 // if (opendir(options.directory) == NULL) {
-	 	// perror("Directory doesn't exist");
-	 	// return -1;
-	 // }
+     DIR *d;
+	 if ((d = opendir(options.directory)) == NULL) {
+	 	perror("Directory doesn't exist");
+	 	return -1;
+	 }
+     closedir(d);
 	 
-     struct elist *list = elist_create(0, sizeof(int));
+     struct elist *list = elist_create(0, sizeof(struct Entries));
      traverse_dir(options.directory, list);
 
-     struct Entries *e = elist_get(list, 0);
-     
      if (options.sort_by_time) {
      	elist_sort(list, comparator_time);
      } else {
      	elist_sort(list, comparator_bytes);
      }
-    
+
+     // iterate through and print out each item
+     // char size_buf[15];
+     // char time_buf[15];
+     //
+               // unsigned int decimals = 1;
+            // human_readable_size(&buf_bytes, sz, size, decimals);
+		// 
+            // char buf_time[80];
+            // simple_time_format(buf_time, 80, entry.time);
+
+ 
      return 0;
 }
 
