@@ -25,8 +25,11 @@ Options:
 ```
 User can sort the directories based on the size ascendingly, or time of last access descendingly. They also have the options to show limited numver of output.
 
-### What is Elastic Array?
-proc is the process information pseudo-filesystem. Inside /proc, there are process IDs and several other virtual files that are updated dynamically with system information. Each of the system processes corresponds to one of the numbered directories in /proc. Some of the other information that can be obtained from this file system includes the kernel version, CPU counters, mounted disks, and many more.  Since this is just an example of an excellent README, you shouldn't plagiarize it. Copying and pasting this file into your own project carries a 5 point deduction.  To get a better understanding of proc, check out the man page: man proc. The manual has a complete description of every file and directory stored under /proc
+### Elist Functions
+The elastic array implements these following functions:
+- <b>elist_add</b>: appends an element to the array
+- <b>elist_add_new</b>: creates storage space for a new element and returns a pointer to it
+- 
 
 
 ### Included Files
@@ -34,7 +37,7 @@ There are several files included. These are:
    - <b>Makefile</b>: Including to compile and run the program.
    - <b>da.c</b>: The disk usage analyzer
    - <b>elist.c</b>: Elastic array to
-   - <b>util.c</b>: Includes functions to get the hardware information of the system. This infomation includes CPU model, number of processing units, load average, CPU usage, and memory usage.
+   - <b>util.c</b>: 
    - <b>task_info.c</b>: Includes functions that will count the number of tasks running, number of interrupts, context switches, and forks since boot. Also contains functions that will count the number of processes of the system and print them out as a list.
    - <b>read_files.c</b>: Includes helper functions to read in a file using system call read and also tokenize a string.
 
