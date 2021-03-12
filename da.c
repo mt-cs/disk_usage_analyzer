@@ -6,14 +6,13 @@
 #include <dirent.h>
 #include <sys/stat.h>
 #include <string.h>
+#include <time.h>
+#include <sys/types.h>
+#include <unistd.h>
 
 #include "elist.h"
 #include "logger.h"
 #include "util.h"
-
-#define GREEN "\x1b[32m"
-#define BLUE "\x1b[34m"
-#define WHITE "\x1b[37m"
 
 /* Forward declarations: */
 void print_usage(char *argv[]);
@@ -23,10 +22,10 @@ void traverse_dir(char *name, struct elist *list);
 /* Create struct for entries */
 struct Entries
 {
-	unsigned int *bytes;
-    unsigned int *time;
+	off_t bytes;
+    time_t time;
     char *path;
-};
+} entry;
 
 void print_usage(char *argv[]) {
 	fprintf(stderr, "Disk Analyzer (da): analyzes disk space usage\n");
@@ -34,7 +33,7 @@ void print_usage(char *argv[]) {
 
 	fprintf(stderr, "If no directory is specified, the current working directory is used.\n\n");
 
-	fprintf(stderr, "Options:\n"
+	fprintf(stderr, "Options:[<64;34;23M[<65;34;23M[<65;34;23M[<65;34;23M[<65;34;23M[<65;34;23M[<65;34;23M[<65;34;23M[<65;34;23M]]]]]]]]]\n"
 		"    * -a              Sort the files by time of last access (descending)\n"
 		"    * -h              Display help/usage information\n"
 		"    * -l limit        Limit the output to top N files (default=unlimited)\n"
@@ -49,15 +48,21 @@ int comp(const void *a, const void *b) {
 	return *ap > *bp; // ascending
 }
 
+int comparator_bytes(const void *a, const void *b)
+{
+    off_t *ai = (off_t *) a;
+    off_t *bi = (off_t *) b;
 
- // create a helper function that takes in current path, elist -- create new string for path
-    // 	- then try to find all the files under the path
-    // 	- when get file
-    //	 	- - create string and append the path
-    //	 	- - create struct and append the struct
-    //	 	add struct in elist
-    // recursive case: when find directory, call it again on it
-    // pass the elist
+    return *ai > *bi;
+}
+
+int comparator_time(const void *a, const void *b)
+{
+    time_t *ai = (time_t *) a;
+    time_t *bi = (time_t *) b;
+
+    return *ai > *bi;
+}
     
 void traverse_dir(char *name, struct elist *list){
     DIR* dir;
@@ -65,44 +70,56 @@ void traverse_dir(char *name, struct elist *list){
     struct stat states;
 
     dir = opendir(name);
-    
+
     if(!dir) {
         return;
     }
 
+	// if (stat("etc/passwd", &states) == -1) {
+		// perror("stat");
+	// }
+
     while((ent=readdir(dir)) != NULL){
         stat(ent->d_name,&states);
         //printf("%d\n",(double)states.st_size);
-        
+
         if(!strcmp(".", ent->d_name) || !strcmp("..", ent->d_name)){
             continue;
         }
         else{
-        	//char *buf_size = human_readable_size(*buf_size, 100, name.size);
-			double size = (double)states.st_size;
-			char *buf_size;
-			size_t sz = 80;
-        	struct Entries *entry;
-        	unsigned int decimals;
-        	human_readable_size(buf_size, sz, size, decimals);
-			entry->bytes = buf_size;
-			
-        
-            printf(GREEN "%s/%s\n" WHITE, name, ent->d_name);
+        	//struct Entries *entry = elist_add_new(list);
+            //struct Entries *entry = (struct Entries*)malloc(sizeof(struct Entries));
+            entry.bytes = states.st_size;
+           	
+            entry.time = states.st_atim.tv_sec;
+
+            // double size = (double)states.st_size;
+            // char *buf_bytes;
+            // size_t sz = 80;
+// 
+            // unsigned int decimals = 1;
+            // human_readable_size(&buf_bytes, sz, size, decimals);
+		// 
+            // char buf_time[80];
+            // simple_time_format(buf_time, 80, entry.time);
+
+            //printf(GREEN "%-10s/%-8s 	%-8s 	 %s\n" WHITE, name, ent->d_name, buf_bytes, buf_time);
             if(S_ISDIR(states.st_mode)){
                 size_t file_path_len = strlen(name) + strlen(ent->d_name) + 2;
                 char *file_path = malloc(file_path_len);
                 snprintf(file_path, file_path_len, "%s/%s", name, ent->d_name);
-                elist_add(list, file_path);
+                // printf("%51s 	%14s 	%15s\n", file_path, buf_bytes, buf_time);
+                entry.path =  file_path;
                 traverse_dir(file_path, list);
                 free(file_path);
             }
+            elist_add(list, &entry);
+           
+            //free(buf_bytes);
         }
     }
     closedir(dir);
 }
-
-
 
 int main(int argc, char *argv[])
 {
@@ -179,60 +196,24 @@ int main(int argc, char *argv[])
      *  - print formatted list
      */
 
-	 if (opendir(options.directory) == NULL) {
-	 	perror("Directory doesn't exist");
-	 	return -1;
-	 }
+	 //printf("%s", options.directory);
+	 // if (opendir(options.directory) == NULL) {
+	 	// perror("Directory doesn't exist");
+	 	// return -1;
+	 // }
+	 
      struct elist *list = elist_create(0, sizeof(int));
      traverse_dir(options.directory, list);
+
+     struct Entries *e = elist_get(list, 0);
      
-     	
-     
-     
-   
-	// struct elist *list = elist_create(0, sizeof(int));
-	// int a = 9;
-	// elist_add(list, &a);
-	// 
-	// a = 6;
-	// elist_add(list, &a);
-	// 
-	// for (int i = 0; i < 1000; ++i) {
-		// elist_add(list, &i);
-	// }
-// 
-	// int my_nums[100];
-	// for (int i = 0; i < 100; ++i) {
-		// my_nums[i] = random() % 1000;
-	// }
-// 
-	// for (int i = 0; i < 100; ++i) {
-			// printf("-> %d\n", my_nums[i]);
-		// }
-		// 
-	// qsort(my_nums, 100, sizeof(int), comp);
-// 
-	// printf("AFTER SORTING:\n");
-	// for (int i = 0; i < 100; ++i) {
-		// printf("-> %d\n", my_nums[i]);
-	// }
-	// 
-	// int b = 999;
-	// elist_add(list, &b);
-// 
-	// elist_add(list, &options); // casting options to integer and you don't know what you'll get back
-// 
-	// int *x = elist_get(list, 1);
-	// printf("we got an integer back! %d\n", *x);
-// 
-	// int *y = elist_get(list, 0); // 9 because we copied it
-	// printf("we got an integer back! %d\n", *y);
-// 
-	// int *z = elist_get(list, 3);
-	// printf("we got an integer back! %d\n", *z); // this depends on the data on what &options has
-		// 
-	//elist_destroy(list);
-    return 0;
+     if (options.sort_by_time) {
+     	elist_sort(list, comparator_time);
+     } else {
+     	elist_sort(list, comparator_bytes);
+     }
+    
+     return 0;
 }
 
 

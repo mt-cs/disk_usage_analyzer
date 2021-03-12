@@ -11,9 +11,9 @@
  * @param size Size to be converted
  * @param decimals Number of decimals to display in the formatted string
  */
-void human_readable_size(char *buf, size_t buf_sz, double size, unsigned int decimals)
+void human_readable_size(char **buf, size_t buf_sz, double size, unsigned int decimals)
 {
-	buf = (char*)malloc(buf_sz);
+	*buf = (char*)malloc(buf_sz);
 	char *suffix[] = {"B", "KiB", "MiB", "GiB", "TiB", "PiB", "ZiB"};
 	int i = 0;
 	while (size > 1024) {
@@ -21,7 +21,7 @@ void human_readable_size(char *buf, size_t buf_sz, double size, unsigned int dec
 		i++;
 	}
 	decimals = size;
-	sprintf(buf, "%ui %s", decimals, suffix[i]);
+	sprintf(*buf, "%ui %s", decimals, suffix[i]);
 }
 
 /**

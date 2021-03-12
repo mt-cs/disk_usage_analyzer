@@ -181,7 +181,7 @@ void *elist_add_new(struct elist *list)
  */
 int elist_set(struct elist *list, size_t idx, void *item)
 {
-	if(idx >= list->size){
+	if(!idx_is_valid(list, idx)){
 		return -1;
 	}
 	memcpy(list->element_storage + idx * list->item_sz, item, list->item_sz);
@@ -198,7 +198,7 @@ int elist_set(struct elist *list, size_t idx, void *item)
  */
 void *elist_get(struct elist *list, size_t idx)
 {
-	if (idx >= list->size) {
+	if (!idx_is_valid(list, idx)) {
 		return NULL;
 	}
     return list->element_storage + idx * list->item_sz;
@@ -227,7 +227,7 @@ size_t elist_size(struct elist *list)
  */
 int elist_remove(struct elist *list, size_t idx)
 {
-	if (idx >= list->size) {
+	if (!idx_is_valid(list, idx)) {
 		fprintf(stderr, "Out of index!");
 		return -1;
 	}
@@ -308,3 +308,13 @@ void elist_sort(struct elist *list, int (*comparator)(const void *, const void *
 	return;
 }
 
+/*
+* Checks if index is valid
+*/
+bool idx_is_valid(struct elist *list, size_t idx)
+{
+	if (idx >= list->size) {
+		return false;
+	}
+	return true;
+}
