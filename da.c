@@ -101,12 +101,12 @@ void traverse_dir(char *name, struct elist *list){
             // is a file, get its stats
             struct Entries entry;
             struct stat states;
-            if (stat(file_path,&states) == -1) {
+            if (stat(file_path, &states) == -1) {
                 perror("stat");
             }
             entry.bytes = states.st_size;
             entry.time = states.st_atim.tv_sec;
-            entry.path =  file_path;
+            entry.path = file_path;
             LOG("adding: %s\n", file_path);
             elist_add(list, &entry);
         }
@@ -181,53 +181,39 @@ int main(int argc, char *argv[])
             options.sort_by_time == true ? "time" : "size",
             options.limit);
     LOG("Directory to analyze: [%s]\n", options.directory);
+    
+	// check to ensure the directory actually exists
+	DIR *d;
+	if ((d = opendir(options.directory)) == NULL) {
+		perror("Directory doesn't exist");
+		return -1;
+	}
+    closedir(d);
 
-    /* TODO:
-     *  - check to ensure the directory actually exists
-     *  - create a new 'elist' data structure
-     *  - traverse the directory and store entries in the list
-     *  - sort the list (either by size or time)
-     *  - print formatted list
-     */
-     DIR *d;
-	 if ((d = opendir(options.directory)) == NULL) {
-	 	perror("Directory doesn't exist");
-	 	return -1;
-	 }
-     closedir(d);
-	 
-     struct elist *list = elist_create(0, sizeof(struct Entries));
-     traverse_dir(options.directory, list);
+ 	// create a new 'elist' data structure
+    struct elist *list = elist_create(0, sizeof(struct Entries));
 
-     if (options.sort_by_time) {
-     	elist_sort(list, comparator_time);
-     } else {
-     	elist_sort(list, comparator_bytes);
-     }
-     
-     unsigned int decimals = 1;
-     char size_buf[14];
-     char time_buf[15];
-     for (size_t i = 0; i < elist_size(list); i++) {
-     	struct Entries *e = elist_get(list, i);
-     	human_readable_size(size_buf, 14, (double)e->bytes, decimals);
-     	
-     }
-     // iterate through and print out each item
-     
-     
-        // double size = (double)states.st_size;
-            // char *buf_bytes;
-            // size_t sz = 80;
-            
-               // unsigned int decimals = 1;
-            // human_readable_size(&buf_bytes, sz, size, decimals);
-		// 
-            // char buf_time[80];
-            // simple_time_format(buf_time, 80, entry.time);
+    // traverse the directory and store entries in the list
+    traverse_dir(options.directory, list);
 
- 
-     return 0;
+	// sort the list (either by size or time)
+    if (options.sort_by_time) {
+    	elist_sort(list, comparator_time);
+    } else {
+    	elist_sort(list, comparator_bytes);
+    }
+
+    // print formatted list
+    unsigned int decimals = 1;
+    char size_buf[14];
+    char time_buf[15];
+    for (size_t i = 0; i < elist_size(list); i++) {
+    	struct Entries *e = elist_get(list, i);
+    	human_readable_size(size_buf, 14, (double)e->bytes, decimals);
+    	simple_time_format(time_buf, 15, e->time);
+    	printf("%51s %14s %15s\n", e->path, size_buf, time_buf);
+    }
+    return 0;
 }
 
 
