@@ -41,13 +41,11 @@ void print_usage(char *argv[]) {
 		);
 }
 
-int comp(const void *a, const void *b) {
-	int *ap = (int *) a;
-	int *bp = (int *) b;
-	//return *ap < *bp; // descending
-	return *ap > *bp; // ascending
-}
-
+/*
+* Compare directory based on the byte size
+* @param const void *a element directory 
+* @param const void *b element directory
+*/
 int comparator_bytes(const void *a, const void *b)
 {
     off_t *ai = (off_t *) a;
@@ -56,14 +54,25 @@ int comparator_bytes(const void *a, const void *b)
     return *ai > *bi;
 }
 
+/*
+* Compare directory based on the last access time
+* @param const void *a element directory 
+* @param const void *b element directory
+*/
 int comparator_time(const void *a, const void *b)
 {
     time_t *ai = (time_t *) a;
     time_t *bi = (time_t *) b;
 
-    return *ai > *bi;
+    return *ai < *bi;
 }
-    
+
+/*
+* Traverse the directory recursively and
+* storing path, size, and time to the struct entry
+* @param name path name
+* @param listt elist elastic array
+*/   
 void traverse_dir(char *name, struct elist *list){
     DIR* dir;
     struct dirent *ent;
@@ -102,7 +111,6 @@ void traverse_dir(char *name, struct elist *list){
             LOG("adding: %s\n", file_path);
             elist_add(list, &entry);
         }
-
         free(file_path);
     }
     closedir(dir);
@@ -182,8 +190,6 @@ int main(int argc, char *argv[])
      *  - sort the list (either by size or time)
      *  - print formatted list
      */
-
-	 //printf("%s", options.directory);
      DIR *d;
 	 if ((d = opendir(options.directory)) == NULL) {
 	 	perror("Directory doesn't exist");
@@ -204,6 +210,10 @@ int main(int argc, char *argv[])
      // char size_buf[15];
      // char time_buf[15];
      //
+        // double size = (double)states.st_size;
+            // char *buf_bytes;
+            // size_t sz = 80;
+            
                // unsigned int decimals = 1;
             // human_readable_size(&buf_bytes, sz, size, decimals);
 		// 
@@ -215,4 +225,4 @@ int main(int argc, char *argv[])
 }
 
 
-   
+
