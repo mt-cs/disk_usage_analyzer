@@ -21,8 +21,8 @@ void human_readable_size(char *buf, size_t buf_sz, double size, unsigned int dec
 		i++;
 	}
 	decimals = size;
-	sprintf(buf, "%ui %s", decimals, suffix[i]);
-	LOG("convert size %f to: %s\n", (double)size, buf);	
+	sprintf(buf, "%u %s", decimals, suffix[i]);
+	//LOG("convert size %f to: %s\n", (double)size, buf);	
 }
 
 /**
@@ -44,6 +44,6 @@ size_t simple_time_format(char *buf, size_t buf_sz, time_t time)
 	if (buf_sz < bytes) {
 		return 0;
 	}
-	LOG("convert time %f to: %s\n", (double)time, buf);
+	//LOG("convert time %f to: %s\n", (double)time, buf);
 	return bytes;
 }

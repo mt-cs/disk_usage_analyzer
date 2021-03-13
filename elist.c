@@ -141,7 +141,6 @@ ssize_t elist_add(struct elist *list, void *item)
 	size_t idx = list->size++;
 	void *item_ptr = list->element_storage + idx * list->item_sz;
 	memcpy(item_ptr, item, list->item_sz);
-	
     return idx;
 }
 
@@ -198,7 +197,7 @@ int elist_set(struct elist *list, size_t idx, void *item)
  */
 void *elist_get(struct elist *list, size_t idx)
 {
-	if (!idx_is_valid(list, idx)) {
+	if (idx >= list->size) {
 		return NULL;
 	}
     return list->element_storage + idx * list->item_sz;

@@ -86,9 +86,9 @@ void traverse_dir(char *name, struct elist *list){
 
     while((ent=readdir(dir)) != NULL){
 
-        if(!strcmp(".", ent->d_name) || !strcmp("..", ent->d_name)){
-            continue;
-        }
+        // if(!strcmp(".", ent->d_name) || !strcmp("..", ent->d_name)){
+            // continue;
+        // }
 
         size_t file_path_len = strlen(name) + strlen(ent->d_name) + 2;
         char *file_path = malloc(file_path_len);
@@ -96,6 +96,9 @@ void traverse_dir(char *name, struct elist *list){
 
         if (ent->d_type == DT_DIR) {
             // is a directory; traverse
+            if(strcmp(".", ent->d_name) == 0 || strcmp("..", ent->d_name) == 0){
+                continue;
+            }
             traverse_dir(file_path, list);
         } else {
             // is a file, get its stats
@@ -107,11 +110,15 @@ void traverse_dir(char *name, struct elist *list){
             entry.bytes = states.st_size;
             entry.time = states.st_atim.tv_sec;
             entry.path = file_path;
-            LOG("adding: %s\n", entry.path);     
             elist_add(list, &entry);
+            LOG("adding: %s\n", entry.path);
         }
         free(file_path);
     }
+    // for (size_t i = 0; i < 10; i++) {
+    	// struct Entries *e = elist_get(list, i);
+    	// printf("Path Inside Traverse: %s\n", e->path);
+    // }
     closedir(dir);
 }
 
@@ -203,17 +210,17 @@ int main(int argc, char *argv[])
     	elist_sort(list, comparator_bytes);
     }
 
-    // print formatted list
+    //print formatted list
     unsigned int decimals = 1;
     char size_buf[14];
     char time_buf[15];
     for (size_t i = 0; i < elist_size(list); i++) {
     	struct Entries *e = elist_get(list, i);
     	human_readable_size(size_buf, 14, (double)e->bytes, decimals);
-    	LOG("Size_buf: %s\n", size_buf);
+    	//LOG("Size_buf: %s\n", size_buf);
     	simple_time_format(time_buf, 15, e->time);
-    	LOG("Path: %s\n", e->path);
-    	printf("%51s%14s%15s\n", e->path, size_buf, time_buf);
+    	//LOG("Path: %s\n", e->path);
+    	//printf("%51s%14s%15s\n", e->path, size_buf, time_buf);
     }
     return 0;
 }
