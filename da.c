@@ -85,11 +85,6 @@ void traverse_dir(char *name, struct elist *list){
     }
 
     while((ent=readdir(dir)) != NULL){
-
-        // if(!strcmp(".", ent->d_name) || !strcmp("..", ent->d_name)){
-            // continue;
-        // }
-
         size_t file_path_len = strlen(name) + strlen(ent->d_name) + 2;
         char *file_path = malloc(file_path_len);
         snprintf(file_path, file_path_len, "%s/%s", name, ent->d_name);
@@ -115,10 +110,6 @@ void traverse_dir(char *name, struct elist *list){
         }
         free(file_path);
     }
-    // for (size_t i = 0; i < 10; i++) {
-    	// struct Entries *e = elist_get(list, i);
-    	// printf("Path Inside Traverse: %s\n", e->path);
-    // }
     closedir(dir);
 }
 
