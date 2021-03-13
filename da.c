@@ -220,7 +220,7 @@ int main(int argc, char *argv[])
     	//LOG("Size_buf: %s\n", size_buf);
     	simple_time_format(time_buf, 15, e->time);
     	//LOG("Path: %s\n", e->path);
-    	//printf("%51s%14s%15s\n", e->path, size_buf, time_buf);
+    	printf("%51s%14s%15s\n", e->path, size_buf, time_buf);
     }
     return 0;
 }
