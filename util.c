@@ -1,5 +1,5 @@
 #include "util.h"
-
+#include "logger.h"
 #include <stdio.h>
 #include <time.h>
 #include <stdlib.h>
@@ -13,7 +13,7 @@
  */
 void human_readable_size(char *buf, size_t buf_sz, double size, unsigned int decimals)
 {
-	buf = (char*)malloc(buf_sz);
+	///*buf = (char*)malloc(buf_sz);
 	char *suffix[] = {"B", "KiB", "MiB", "GiB", "TiB", "PiB", "ZiB"};
 	int i = 0;
 	while (size > 1024) {
@@ -22,6 +22,7 @@ void human_readable_size(char *buf, size_t buf_sz, double size, unsigned int dec
 	}
 	decimals = size;
 	sprintf(buf, "%ui %s", decimals, suffix[i]);
+	LOG("convert size %f to: %s\n", (double)size, buf);	
 }
 
 /**
@@ -43,5 +44,6 @@ size_t simple_time_format(char *buf, size_t buf_sz, time_t time)
 	if (buf_sz < bytes) {
 		return 0;
 	}
+	LOG("convert time %f to: %s\n", (double)time, buf);
 	return bytes;
 }
