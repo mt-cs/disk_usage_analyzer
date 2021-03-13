@@ -29,65 +29,59 @@ User can sort the directories based on the size ascendingly, or time of last acc
 The elastic array implements these following functions:
 - <b>elist_add</b>: appends an element to the array
 - <b>elist_add_new</b>: creates storage space for a new element and returns a pointer to it
-- 
+- <b>elist_capacity</b>: retrieves the current list capacity
+- <b>elist_clear_mem</b>: removes all elements from the array and zeroes them out
+- <b>elist_create</b>: initializes a new elist data structure
+- <b>elist_destroy</b>: destroys and frees any memory allocated by an elist
+- <b>elist_get</b>: retrieves a particular element by its index
+- <b>elist_index_of</b>: determines the index of a particular element
+- <b>elist_remove</b>: removes an element at a particular index
+- <b>elist_set</b>: replaces an element in the array at a particular index
+- <b>elist_set_capacity</b>: increases or decreases the storage capacity of the array
+- <b>elist_size</b>: retrieves the number of elements in the array
+- <b>elist_sort</b>: sorts the array
 
 
 ### Included Files
 There are several files included. These are:
    - <b>Makefile</b>: Including to compile and run the program.
-   - <b>da.c</b>: The disk usage analyzer
-   - <b>elist.c</b>: Elastic array to
-   - <b>util.c</b>: 
-   - <b>task_info.c</b>: Includes functions that will count the number of tasks running, number of interrupts, context switches, and forks since boot. Also contains functions that will count the number of processes of the system and print them out as a list.
-   - <b>read_files.c</b>: Includes helper functions to read in a file using system call read and also tokenize a string.
+   - <b>da.c</b>: The disk usage analyzer to traverse directory
+   - <b>elist.c</b>: Elastic array to store elements dinamically
+   - <b>util.c</b>: Helper function to converts bytes sizes and time to human-readable format string
+   - <b>logger.h</b>: Helps facilitate debugging by providing basic logging functionality.
 
-There are also header files for each of these files.
-
+There are also header files: elist.h, until.h.
 
 To compile and run:
 
 ```bash
 make
-./inspector
+./da
 ```
 
 
 ### Program Output
 ```bash
-$ ./inspector
-inspector.c:133:main(): Options selected: hardware system task_list task_summary
-
-System Information
-------------------
-Hostname: lunafreya
-Kernel Version: 4.20.3-arch1-1-ARCH
-Uptime: 1 days, 11 hours, 49 minutes, 56 seconds
-
-Hardware Information
-------------------
-CPU Model: AMD EPYC Processor (with IBPB)
-Processing Units: 2
-Load Average (1/5/15 min): 0.00 0.00 0.00
-CPU Usage:    [--------------------] 0.0%
-Memory Usage: [#-------------------] 9.5% (0.1 GB / 1.0 GB)
-
-Task Information
-----------------
-Tasks running: 88
-Since boot:
-    Interrupts: 2153905
-    Context Switches: 3678668
-    Forks: 38849
-
-  PID |        State |                 Task Name |            User | Tasks 
-------+--------------+---------------------------+-----------------+-------
-    1 |     sleeping |                   systemd |               0 | 1 
-    2 |     sleeping |                  kthreadd |               0 | 1 
-    3 |         idle |                    rcu_gp |               0 | 1 
-    4 |         idle |                rcu_par_gp |               0 | 1 
-    6 |         idle |      kworker/0:0H-kblockd |               0 | 1 
-
+$ ./da -l 15 -s /usr
+  /usr/lib/valgrind/libvex-amd64-linux.a      36.5 MiB    Aug 21 2020
+                    /usr/lib/libclang.so      38.6 MiB    Aug 21 2020
+                 /usr/lib/libclang.so.10      38.6 MiB    Aug 21 2020
+                     /usr/bin/containerd      46.9 MiB    Feb 01 2021
+                /usr/lib/libclang-cpp.so      47.2 MiB    Mar 08 2021
+             /usr/lib/libclang-cpp.so.10      47.2 MiB    Mar 08 2021
+                       /usr/lib/libgo.so      52.4 MiB    Sep 09 2020
+                    /usr/lib/libgo.so.16      52.4 MiB    Sep 09 2020
+                /usr/lib/libgo.so.16.0.0      52.4 MiB    Sep 09 2020
+.../lib/docker/cli-plugins/docker-buildx      54.2 MiB    Dec 03 2020
+                         /usr/bin/docker      71.0 MiB    Dec 03 2020
+              /usr/lib/libLLVM-10.0.1.so      83.7 MiB    Mar 08 2021
+                  /usr/lib/libLLVM-10.so      83.7 MiB    Mar 08 2021
+                     /usr/lib/libLLVM.so      83.7 MiB    Mar 08 2021
+                        /usr/bin/dockerd      84.4 MiB    Feb 01 2021
 ```
+
+In this output example, the user requested the top 15 files (-l 15), sorted by size (-s) from the /usr directory. 
+The output columns include the file name, file size in human readable units, and the last time the particular file was accessed.
 
 ## Testing
 
