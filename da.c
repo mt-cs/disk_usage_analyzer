@@ -124,6 +124,7 @@ void traverse_dir(char *name, struct elist *list){
     closedir(dir);
 }
 
+
 int main(int argc, char *argv[])
 {
     /* Create a struct to hold program options and initialize it by declaring an
@@ -244,6 +245,7 @@ int main(int argc, char *argv[])
 		free(p->path);
 	}
     elist_destroy(list);
+    
     return 0;
 }
 

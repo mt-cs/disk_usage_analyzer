@@ -96,7 +96,6 @@ int elist_set_capacity(struct elist *list, size_t capacity)
 	list->element_storage = realloc(list->element_storage, capacity * list->item_sz);
 	if (list->element_storage == NULL) {
 		perror("realloc");
-		free(list);
 		return -1;
 	}	
 	
@@ -134,7 +133,9 @@ ssize_t elist_add(struct elist *list, void *item)
 	if (list->size >= list->capacity) {
 		size_t capacity = list->capacity * RESIZE_MULTIPLIER;
 		//LOG("Resizing the list. New capacity: %zu\n", list->capacity);
-		elist_set_capacity(list, capacity);
+		if(elist_set_capacity(list, capacity) == -1) {
+			return -1;
+		}
 	}
 	
 	size_t idx = list->size++;
