@@ -112,15 +112,9 @@ void traverse_dir(char *name, struct elist *list){
             entry.path = file_path;
             elist_add(list, &entry);
             //LOG("adding: %s\n", entry.path);
-            //count++;
         }
         //free(file_path);
     }
-	// for (size_t i = 0; i < elist_size(list); i++) {
-    	// struct Entries *e = elist_get(list, i);
-    	// LOG("Path: %s\n", e->path);
-    	// 
-    // }
     closedir(dir);
 }
 
@@ -199,14 +193,11 @@ int main(int argc, char *argv[])
 		return -1;
 	}
     closedir(d);
-
-	//char *test_dir = "./etc";
  	// create a new 'elist' data structure
     struct elist *list = elist_create(0, sizeof(struct Entries));
-	//struct elist *list = elist_create(0, 1000);
+
     // traverse the directory and store entries in the list
     traverse_dir(options.directory, list);
-    //traverse_dir(test_dir, list);
 
 	// sort the list (either by size or time)
     if (options.sort_by_time) {
