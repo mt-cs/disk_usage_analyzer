@@ -9,15 +9,16 @@
 #include <time.h>
 #include <sys/types.h>
 #include <unistd.h>
+#include <errno.h>
 
 #include "elist.h"
 #include "logger.h"
 #include "util.h"
-
+#include "da.h"
 /* Forward declarations: */
-void print_usage(char *argv[]);
-int comp(const void *a, const void *b);
-void traverse_dir(char *name, struct elist *list);
+// void print_usage(char *argv[]);
+// int comp(const void *a, const void *b);
+// void traverse_dir(char *name, struct elist *list);
 
 /* Create struct for entries */
 struct Entries
@@ -84,7 +85,8 @@ void traverse_dir(char *name, struct elist *list){
         return;
     }
 
-    while((ent=readdir(dir)) != NULL){
+	int count = 0;
+    while((ent=readdir(dir)) != NULL && count <= 2){
         size_t file_path_len = strlen(name) + strlen(ent->d_name) + 2;
         char *file_path = malloc(file_path_len);
         snprintf(file_path, file_path_len, "%s/%s", name, ent->d_name);
@@ -107,8 +109,14 @@ void traverse_dir(char *name, struct elist *list){
             entry.path = file_path;
             elist_add(list, &entry);
             LOG("adding: %s\n", entry.path);
+            count++;
         }
         free(file_path);
+    }
+	for (size_t i = 0; i < elist_size(list); i++) {
+    	struct Entries *e = elist_get(list, i);
+    	LOG("Path: %s\n", e->path);
+    	
     }
     closedir(dir);
 }
@@ -188,11 +196,13 @@ int main(int argc, char *argv[])
 	}
     closedir(d);
 
+	//char *test_dir = "./etc";
  	// create a new 'elist' data structure
     struct elist *list = elist_create(0, sizeof(struct Entries));
-
+	//struct elist *list = elist_create(0, 1000);
     // traverse the directory and store entries in the list
     traverse_dir(options.directory, list);
+    //traverse_dir(test_dir, list);
 
 	// sort the list (either by size or time)
     if (options.sort_by_time) {
@@ -213,6 +223,8 @@ int main(int argc, char *argv[])
     	//LOG("Path: %s\n", e->path);
     	printf("%51s%14s%15s\n", e->path, size_buf, time_buf);
     }
+
+    elist_destroy(list);
     return 0;
 }
 

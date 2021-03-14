@@ -62,7 +62,6 @@ struct elist *elist_create(size_t list_sz, size_t item_sz)
 		free(list);
 		return NULL;
 	}
-	
     return list;
 }
 
