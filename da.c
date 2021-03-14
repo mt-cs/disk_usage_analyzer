@@ -34,8 +34,7 @@ void print_usage(char *argv[]) {
 	fprintf(stderr, "Usage: %s [-ahs] [-l limit] [directory]\n\n", argv[0]);
 
 	fprintf(stderr, "If no directory is specified, the current working directory is used.\n\n");
-
-	fprintf(stderr, "Options:[<64;34;23M[<65;34;23M[<65;34;23M[<65;34;23M[<65;34;23M[<65;34;23M[<65;34;23M[<65;34;23M[<65;34;23M]]]]]]]]]\n"
+	fprintf(stderr, "Options:\n"
 		"    * -a              Sort the files by time of last access (descending)\n"
 		"    * -h              Display help/usage information\n"
 		"    * -l limit        Limit the output to top N files (default=unlimited)\n"
@@ -44,7 +43,7 @@ void print_usage(char *argv[]) {
 }
 
 /*
-* Compare directory based on the byte size
+* Compare directory based on the byte size ascendingly
 * @param const void *a element directory 
 * @param const void *b element directory
 */
@@ -57,7 +56,7 @@ int comparator_bytes(const void *a, const void *b)
 }
 
 /*
-* Compare directory based on the last access time
+* Compare directory based on the last access time descendingly
 * @param const void *a element directory 
 * @param const void *b element directory
 */
@@ -86,7 +85,6 @@ void traverse_dir(char *name, struct elist *list){
         return;
     }
 
-	//int count = 0;
     while((ent=readdir(dir)) != NULL){
         size_t file_path_len = strlen(name) + strlen(ent->d_name) + 2;
         char *file_path = malloc(file_path_len);
@@ -111,7 +109,7 @@ void traverse_dir(char *name, struct elist *list){
             entry.time = states.st_atim.tv_sec;
             entry.path = file_path;
             elist_add(list, &entry);
-            //LOG("adding: %s\n", entry.path);
+            LOG("adding: %s\n", entry.path);
         }
         //free(file_path);
     }
@@ -211,7 +209,15 @@ int main(int argc, char *argv[])
     char size_buf[14];
     char time_buf[15];
     char path_buf[51];
-    for (size_t i = 0; i < elist_size(list); i++) {
+    size_t print_sz = 1;
+
+    if (options.limit != 0) {
+    	print_sz = options.limit;
+    } else {
+    	print_sz = elist_size(list);
+    }
+    
+    for (size_t i = 0; i < print_sz; i++) {
     	struct Entries *e = elist_get(list, i);
     	human_readable_size(size_buf, 14, (double)e->bytes, decimals);
     	//LOG("Size_buf: %s\n", size_buf);
@@ -228,6 +234,7 @@ int main(int argc, char *argv[])
     	}
     	printf("%*s%*s%*s\n", 51, path_buf, 14, size_buf, 15, time_buf);
     }
+    
 	//destroy all path buffers
 	size_t i = 0;
 	for(i = 0; i< elist_size(list);i++)

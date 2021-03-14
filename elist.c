@@ -10,12 +10,13 @@
 #define DEFAULT_INIT_SZ 10 //preprocesser macro
 #define RESIZE_MULTIPLIER 2 //double the element
 
-struct elist{
-	size_t capacity;
-	size_t size;
-	size_t item_sz;
-	void* element_storage;
+struct elist {
+    size_t capacity;         /*!< Storage space allocated for list items */
+    size_t size;             /*!< The actual number of items in the list */
+    size_t item_sz;          /*!< Size of the items stored in the list */
+    void *element_storage;   /*!< Pointer to the beginning of the array */
 };
+
 /**
 * checks if index is valid.
 */
@@ -48,10 +49,10 @@ struct elist *elist_create(size_t list_sz, size_t item_sz)
 	list->size = 0; // the actual number of element. Here empty list we haven't put anything in the "array list"
 
 	size_t storage_bytes = list->capacity * list->item_sz;
-	//LOG("Initializing new elist: capacity=[%zu], item_sz=[%zu], bytes=[%zu]\n",
-			// list->capacity,
-			// list->item_sz,
-			// storage_bytes);
+	LOG("Initializing new elist: capacity=[%zu], item_sz=[%zu], bytes=[%zu]\n",
+			list->capacity,
+			list->item_sz,
+			storage_bytes);
 			
 	list->element_storage = malloc(storage_bytes);
 
@@ -71,7 +72,6 @@ struct elist *elist_create(size_t list_sz, size_t item_sz)
  */
 void elist_destroy(struct elist *list)
 {
-	
 	free(list->element_storage); // element_storage first before we free the list itself
 	free(list);
 }
@@ -132,12 +132,11 @@ ssize_t elist_add(struct elist *list, void *item)
 	/*Check if we need to resize*/
 	if (list->size >= list->capacity) {
 		size_t capacity = list->capacity * RESIZE_MULTIPLIER;
-		//LOG("Resizing the list. New capacity: %zu\n", list->capacity);
+		LOG("Resizing the list. New capacity: %zu\n", list->capacity);
 		if(elist_set_capacity(list, capacity) == -1) {
 			return -1;
 		}
 	}
-	
 	size_t idx = list->size++;
 	void *item_ptr = list->element_storage + idx * list->item_sz;
 	memcpy(item_ptr, item, list->item_sz);
@@ -162,7 +161,6 @@ void *elist_add_new(struct elist *list)
 		size_t capacity = list->capacity * RESIZE_MULTIPLIER;
 		elist_set_capacity(list, capacity);
 	}
-	
 	size_t idx = list->size++;
 	size_t pos = idx * list->item_sz;
 	void *item_ptr = list->element_storage + pos; // pointer to the start of the storage
@@ -230,7 +228,6 @@ int elist_remove(struct elist *list, size_t idx)
 		fprintf(stderr, "Out of index!");
 		return -1;
 	}
-	
 	for(size_t j = idx + 1; j < list->size; j++) {
 		void* item = elist_get(list, j);;
 		elist_set(list, j - 1, item);
