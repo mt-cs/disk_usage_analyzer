@@ -50,7 +50,8 @@ There are several files included. These are:
    - <b>util.c</b>: Helper function to converts bytes sizes and time to human-readable format string
    - <b>logger.h</b>: Helps facilitate debugging by providing basic logging functionality.
 
-There are also header files: elist.h, until.h.
+There are also header files: da.h, elist.h, until.h.
+and some unit tests: test_da.c, test_elist.c
 
 To compile and run:
 
