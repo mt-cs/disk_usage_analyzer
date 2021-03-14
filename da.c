@@ -1,3 +1,4 @@
+
 #include <ctype.h>
 #include <limits.h>
 #include <stdbool.h>
@@ -85,8 +86,8 @@ void traverse_dir(char *name, struct elist *list){
         return;
     }
 
-	int count = 0;
-    while((ent=readdir(dir)) != NULL && count <= 2){
+	//int count = 0;
+    while((ent=readdir(dir)) != NULL){
         size_t file_path_len = strlen(name) + strlen(ent->d_name) + 2;
         char *file_path = malloc(file_path_len);
         snprintf(file_path, file_path_len, "%s/%s", name, ent->d_name);
@@ -94,9 +95,11 @@ void traverse_dir(char *name, struct elist *list){
         if (ent->d_type == DT_DIR) {
             // is a directory; traverse
             if(strcmp(".", ent->d_name) == 0 || strcmp("..", ent->d_name) == 0){
+            	free(file_path);
                 continue;
             }
             traverse_dir(file_path, list);
+            free(file_path);
         } else {
             // is a file, get its stats
             struct Entries entry;
@@ -108,16 +111,16 @@ void traverse_dir(char *name, struct elist *list){
             entry.time = states.st_atim.tv_sec;
             entry.path = file_path;
             elist_add(list, &entry);
-            LOG("adding: %s\n", entry.path);
-            count++;
+            //LOG("adding: %s\n", entry.path);
+            //count++;
         }
-        free(file_path);
+        //free(file_path);
     }
-	for (size_t i = 0; i < elist_size(list); i++) {
-    	struct Entries *e = elist_get(list, i);
-    	LOG("Path: %s\n", e->path);
-    	
-    }
+	// for (size_t i = 0; i < elist_size(list); i++) {
+    	// struct Entries *e = elist_get(list, i);
+    	// LOG("Path: %s\n", e->path);
+    	// 
+    // }
     closedir(dir);
 }
 
@@ -182,7 +185,7 @@ int main(int argc, char *argv[])
         options.directory = argv[optind];
     }
 
-    LOGP("Done parsing arguments.\n");
+    //LOGP("Done parsing arguments.\n");
     LOG("Sorting by: [%s], limit: [%u]\n",
             options.sort_by_time == true ? "time" : "size",
             options.limit);
@@ -215,15 +218,31 @@ int main(int argc, char *argv[])
     unsigned int decimals = 1;
     char size_buf[14];
     char time_buf[15];
+    char path_buf[51];
     for (size_t i = 0; i < elist_size(list); i++) {
     	struct Entries *e = elist_get(list, i);
     	human_readable_size(size_buf, 14, (double)e->bytes, decimals);
     	//LOG("Size_buf: %s\n", size_buf);
     	simple_time_format(time_buf, 15, e->time);
     	//LOG("Path: %s\n", e->path);
-    	printf("%51s%14s%15s\n", e->path, size_buf, time_buf);
+    	unsigned int path_len = strlen(e->path);
+    	if (path_len > 51) {
+    		strcpy(path_buf, "...");
+    		strncat(path_buf, &(e->path[path_len-48]), 51);
+    	}
+    	else
+    	{
+    		strcpy(path_buf, e->path);
+    	}
+    	printf("%*s%*s%*s\n", 51, path_buf, 14, size_buf, 15, time_buf);
     }
-
+	//destroy all path buffers
+	size_t i = 0;
+	for(i = 0; i< elist_size(list);i++)
+	{
+		struct Entries * p = (struct Entries*)(elist_get(list, i));
+		free(p->path);
+	}
     elist_destroy(list);
     return 0;
 }

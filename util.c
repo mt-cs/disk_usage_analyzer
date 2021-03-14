@@ -21,7 +21,7 @@ void human_readable_size(char *buf, size_t buf_sz, double size, unsigned int dec
 		i++;
 	}
 	decimals = size;
-	sprintf(buf, "%u %s", decimals, suffix[i]);
+	sprintf(buf, "%.1f %s", size, suffix[i]);
 	//LOG("convert size %f to: %s\n", (double)size, buf);	
 }
 
@@ -39,7 +39,7 @@ void human_readable_size(char *buf, size_t buf_sz, double size, unsigned int dec
 size_t simple_time_format(char *buf, size_t buf_sz, time_t time)
 {
 	struct tm *now = localtime(&time);
-	strftime(buf, buf_sz, "%B %d %Y", now);
+	strftime(buf, buf_sz, "%b %d %Y", now);
 	size_t bytes = sizeof(buf);
 	if (buf_sz < bytes) {
 		return 0;
