@@ -1,4 +1,3 @@
-
 #include <ctype.h>
 #include <limits.h>
 #include <stdbool.h>
@@ -49,10 +48,7 @@ void print_usage(char *argv[]) {
 */
 int comparator_bytes(const void *a, const void *b)
 {
-    off_t *ai = (off_t *) a;
-    off_t *bi = (off_t *) b;
-
-    return *ai > *bi;
+	return ((struct Entries *) a)->bytes  < ((struct Entries *) b)->bytes;
 }
 
 /*
@@ -62,10 +58,7 @@ int comparator_bytes(const void *a, const void *b)
 */
 int comparator_time(const void *a, const void *b)
 {
-    time_t *ai = (time_t *) a;
-    time_t *bi = (time_t *) b;
-
-    return *ai < *bi;
+	return ((struct Entries *) a)->time > ((struct Entries *) b)->time;
 }
 
 /*
@@ -116,7 +109,7 @@ void traverse_dir(char *name, struct elist *list){
     closedir(dir);
 }
 
-
+//#if 0
 int main(int argc, char *argv[])
 {
     /* Create a struct to hold program options and initialize it by declaring an
@@ -197,7 +190,7 @@ int main(int argc, char *argv[])
     // traverse the directory and store entries in the list
     traverse_dir(options.directory, list);
 
-	// sort the list (either by size or time)
+	//sort the list (either by size or time)
     if (options.sort_by_time) {
     	elist_sort(list, comparator_time);
     } else {
@@ -247,5 +240,5 @@ int main(int argc, char *argv[])
     return 0;
 }
 
-
+//#endif
 
