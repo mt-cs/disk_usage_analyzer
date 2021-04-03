@@ -219,7 +219,7 @@ size_t elist_size(struct elist *list)
  *
  * @param list The list to modify
  * @param idx Index of the element to remove
- *
+ * 
  * @return zero on success, nonzero on failure
  */
 int elist_remove(struct elist *list, size_t idx)
@@ -228,10 +228,13 @@ int elist_remove(struct elist *list, size_t idx)
 		fprintf(stderr, "Out of index!");
 		return -1;
 	}
-	for(size_t j = idx + 1; j < list->size; j++) {
-		void* item = elist_get(list, j);;
-		elist_set(list, j - 1, item);
-	}
+	memmove(list->element_storage + idx * list->item_sz,
+			list->element_storage + (idx + 1) * list->item_sz,
+			(list->size - idx - 1) * list->item_sz);
+	// for(size_t j = idx + 1; j < list->size; j++) {
+	// 	void* item = elist_get(list, j);
+	// 	elist_set(list, j - 1, item);
+	// }
 	list->size--;
 	
     return 0;

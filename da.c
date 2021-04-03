@@ -15,10 +15,6 @@
 #include "logger.h"
 #include "util.h"
 #include "da.h"
-/* Forward declarations: */
-// void print_usage(char *argv[]);
-// int comp(const void *a, const void *b);
-// void traverse_dir(char *name, struct elist *list);
 
 /* Create struct for entries */
 struct Entries
@@ -91,6 +87,7 @@ void traverse_dir(char *name, struct elist *list){
             }
             traverse_dir(file_path, list);
             free(file_path);
+        //} else if (ent->d_type == DT_REG) {
         } else {
             // is a file, get its stats
             struct Entries entry;
@@ -103,13 +100,11 @@ void traverse_dir(char *name, struct elist *list){
             entry.path = file_path;
             elist_add(list, &entry);
             LOG("adding: %s\n", entry.path);
-        }
-        //free(file_path);
+        } 
     }
     closedir(dir);
 }
 
-//#if 0
 int main(int argc, char *argv[])
 {
     /* Create a struct to hold program options and initialize it by declaring an
