@@ -1,4 +1,4 @@
-# Project 1: Elastic Array and Disk Usage Analyzer
+Elastic Array and Disk Usage Analyzer
 
 Author: Marisa Tania  
 
@@ -98,5 +98,3 @@ make test run=4
 # Run a few specific test cases (4, 8, and 12 in this case):
 make test run='4 8 12'
 ```
-
-See spec here: https://www.cs.usfca.edu/~mmalensek/cs521/assignments/project-1.html
